@@ -439,7 +439,7 @@ func Start() {
 	<-c
 }
 
-func NewMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
+func NewMessageOLD(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
 		return // Ignore messages from the bot itself
 	}
@@ -465,6 +465,34 @@ func NewMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 			_, err := s.ChannelMessageSend(m.ChannelID, response)
 			checkNilError(err)
 			return
+		}
+	}
+}
+
+func NewMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
+	if m.Author.ID == s.State.User.ID {
+		return // Ignore messages from the bot itself
+	}
+	fmt.Println("New message received:", m.Content)
+	// Check if the bot is mentioned in the message
+	for _, user := range m.Mentions {
+		if user.ID == s.State.User.ID {
+
+			fmt.Println("Bot mentioned in message: ", m.Content)
+			s.ChannelTyping(m.ChannelID) // Indicate that the bot is typing
+
+			response, err := GetAIResponse(m.Content)
+			if err != nil {
+				// Handle any errors that occurred while getting the AI response
+				fmt.Println("Error getting AI response:", err)
+				_, sendErr := s.ChannelMessageSend(m.ChannelID, mockeryAnswers[rand.Intn(len(mockeryAnswers))]) // Use a random mockery answer from the list
+				checkNilError(sendErr)
+				return
+			}
+			// Send the AI response back to the channel
+			_, sendErr := s.ChannelMessageSend(m.ChannelID, response)
+			checkNilError(sendErr)
+			return // Exit after handling the mention
 		}
 	}
 
