@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"strings"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -60,61 +59,19 @@ func NewMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	case Reply:
 		// Handle replies
-		content := "Original message: " + m.MessageReference.MessageID + "\n You were mentionend like this: " + m.Content
+		ogMessage, err := s.ChannelMessage(m.ChannelID, m.MessageReference.MessageID)
+		checkNilError(err)
+		content := "Original message: " + ogMessage.Content + "\n You were mentionend like this: " + m.Content
 		response, err := GetAIResponse(content)
 		checkNilError(err)
 		_, err = s.ChannelMessageSend(m.ChannelID, response)
 		checkNilError(err)
 		return
 
-	case ReplyWithAttachment:
-		// Handle replies with attachments
-		imageUrl := m.Attachments[0].URL
-		content := "Original message: " + m.MessageReference.MessageID + "\n You were mentionend like this: " + m.Content
-		response, err := SendImageToChatGPT(imageUrl, content)
-		checkNilError(err)
-		_, err = s.ChannelMessageSend(m.ChannelID, response)
-		checkNilError(err)
-		return
-
-	case MentionedWithAttachment:
-		// Handle mentioned messages with attachments
-		imageUrl := m.Attachments[0].URL
-		response, err := SendImageToChatGPT(imageUrl, m.Content)
-		checkNilError(err)
-		_, err = s.ChannelMessageSend(m.ChannelID, response)
-		checkNilError(err)
-		return
-	case MentionedWithLink:
-		// Handle mentioned messages with links
-		link := extractLinkFromMessage(m)
-		if link == "" {
-			fmt.Println("No link found in the message")
-			return
-		}
-		fmt.Println("Link found in the message:", link)
-
-		response, err := SendImageToChatGPT(m.Content, link)
-		checkNilError(err)
-		_, err = s.ChannelMessageSend(m.ChannelID, response)
-		checkNilError(err)
-		return
 	}
-
 	// Handle specific commands
 	if m.Content == "!ping" {
 		_, err := s.ChannelMessageSend(m.ChannelID, "Pong!")
 		checkNilError(err)
 	}
-}
-
-func extractLinkFromMessage(message *discordgo.MessageCreate) string {
-	snaps := strings.Split(message.Content, " ")
-	for _, snap := range snaps {
-		if strings.HasPrefix(snap, "http://") || strings.HasPrefix(snap, "https://") {
-			return snap
-		}
-	}
-
-	return ""
 }

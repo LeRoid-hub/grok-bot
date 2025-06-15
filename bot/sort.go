@@ -24,12 +24,6 @@ func catogorizeMessage(message *discordgo.MessageCreate, session *discordgo.Sess
 		return Uninterrested
 	}
 
-	// Check if the bot is mentioned in the message
-	if message.MessageReference != nil {
-		// If the bot is mentioned in a reply without an attachment, return Reply
-		return Reply
-	}
-
 	// If the bot is mentioned, return Mentioned
 	for _, user := range message.Mentions {
 		if user.ID == session.State.User.ID {
@@ -37,6 +31,11 @@ func catogorizeMessage(message *discordgo.MessageCreate, session *discordgo.Sess
 			if len(message.Attachments) > 0 {
 				// If the bot is mentioned with an attachment, return MentionedWithAttachment
 				return MentionedWithAttachment
+			}
+
+			if message.MessageReference != nil {
+				// If the bot is mentioned in a reply, return Mentioned
+				return Reply
 			}
 
 			// If the bot is mentioned without an attachment, return Mentioned
