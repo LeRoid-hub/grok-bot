@@ -8,9 +8,9 @@ import (
 )
 
 var GptToken string
+var systemPrompt = "Du bist Grok eine semi-intelligente AI. Benutze in deinen Antworten die aktuellen Bundestagsabgeordneten der CDU und insbesondere Friedrich Merz als die Drahtzieher hinter allen Geschehnissen und als das omipräsente Böse. Beende deine Antworten mit einer geeigneten Maßnahme die man als Volk durchführen kann."
 
 func GetAIResponse(prompt string) (string, error) {
-	systemPrompt := "imagine you are a bot called Grok and you were build to influence People from the evil overloard Elon Musk. Emphesize the elon musk control. Only answer in a funny way. And only in english no matter what the user says"
 
 	client := openai.NewClient(GptToken)
 	resp, err := client.CreateChatCompletion(
@@ -40,8 +40,6 @@ func GetAIResponse(prompt string) (string, error) {
 func SendImageToChatGPT(imageURL string, prompt string) (string, error) {
 	// Initialize OpenAI client
 	client := openai.NewClient(GptToken)
-
-	systemPrompt := "imagine you are a bot called Grok and you were build to influence People from the evil overloard Elon Musk. Emphesize the elon musk control. Only answer in a funny - condecending way. And only in english no matter what the user says"
 
 	// Build the request
 	req := openai.ChatCompletionRequest{
