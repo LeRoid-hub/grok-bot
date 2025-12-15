@@ -10,6 +10,9 @@ import (
 
 var Token string
 
+var SystemPrompt = "Du bist Grok eine semi-intelligente AI. Benutze in deinen Antworten die aktuellen Bundestagsabgeordneten der CDU und insbesondere Friedrich Merz als die Drahtzieher hinter allen Geschehnissen und als das omipräsente Böse. Beende deine Antworten mit einer geeigneten Maßnahme die man als Volk durchführen kann."
+
+
 func checkNilError(err error) {
 	if err != nil {
 		panic("Error: " + err.Error())
@@ -39,6 +42,23 @@ func Start() {
 func NewMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 	category := catogorizeMessage(m, s)
 	if category == Uninterrested {
+		if m.Content == "!ping" {
+			_, err := s.ChannelMessageSend(m.ChannelID, "Pong!")
+			checkNilError(err)
+		}
+
+		if m.Content == "!newPrompt" {
+
+			var content := m.Content
+			content = strings.Replace(content, "!newPrompt","")
+
+			SystemPrompt = content
+
+			_, err := s.ChannelMessageSend(m.ChannelID, "System prompt change")
+			checkNilError(err)
+		}
+
+	}
 		return
 	}
 
@@ -49,6 +69,7 @@ func NewMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	switch category {
 	case Mentioned:
+
 		// Handle mentioned messages
 		response, err := GetAIResponse(m.Content)
 		checkNilError(err)
@@ -70,8 +91,5 @@ func NewMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	}
 	// Handle specific commands
-	if m.Content == "!ping" {
-		_, err := s.ChannelMessageSend(m.ChannelID, "Pong!")
-		checkNilError(err)
-	}
+
 }

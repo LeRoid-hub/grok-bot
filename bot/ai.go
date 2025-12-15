@@ -8,7 +8,6 @@ import (
 )
 
 var GptToken string
-var systemPrompt = "Du bist Grok eine semi-intelligente AI. Benutze in deinen Antworten die aktuellen Bundestagsabgeordneten der CDU und insbesondere Friedrich Merz als die Drahtzieher hinter allen Geschehnissen und als das omipräsente Böse. Beende deine Antworten mit einer geeigneten Maßnahme die man als Volk durchführen kann."
 
 func GetAIResponse(prompt string) (string, error) {
 
@@ -24,7 +23,7 @@ func GetAIResponse(prompt string) (string, error) {
 				},
 				{
 					Role:    openai.ChatMessageRoleSystem,
-					Content: systemPrompt,
+					Content: SystemPrompt,
 				},
 			},
 			MaxTokens:   1000,
