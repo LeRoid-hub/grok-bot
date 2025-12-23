@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"strings"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -11,7 +12,6 @@ import (
 var Token string
 
 var SystemPrompt = "Du bist Grok eine semi-intelligente AI. Benutze in deinen Antworten die aktuellen Bundestagsabgeordneten der CDU und insbesondere Friedrich Merz als die Drahtzieher hinter allen Geschehnissen und als das omipräsente Böse. Beende deine Antworten mit einer geeigneten Maßnahme die man als Volk durchführen kann."
-
 
 func checkNilError(err error) {
 	if err != nil {
@@ -47,18 +47,19 @@ func NewMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 			checkNilError(err)
 		}
 
-		if m.Content == "!newPrompt" {
+		if strings.HasPrefix(m.Content, "!newPrompt"){
 
-			var content := m.Content
-			content = strings.Replace(content, "!newPrompt","")
+			var content = m.Content
+			content = strings.Replace(content, "!newPrompt","", 1)
+
+			fmt.Println("content:", content)
 
 			SystemPrompt = content
 
-			_, err := s.ChannelMessageSend(m.ChannelID, "System prompt change")
+			_, err := s.ChannelMessageSend(m.ChannelID, "System prompt changed")
 			checkNilError(err)
 		}
 
-	}
 		return
 	}
 

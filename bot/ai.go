@@ -62,7 +62,7 @@ func SendImageToChatGPT(imageURL string, prompt string) (string, error) {
 			},
 			{
 				Role:    openai.ChatMessageRoleSystem,
-				Content: systemPrompt,
+				Content: SystemPrompt,
 			},
 		},
 		MaxTokens: 1000,
